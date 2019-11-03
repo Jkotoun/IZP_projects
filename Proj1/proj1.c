@@ -28,7 +28,7 @@ bool input_valid(char *str)
     }
     return true;
 }
-
+//bohus
 //Odstraneni znaku \n, prip. \r, aby bylo mozne vypisovat na jeden radek
 void remove_newline(char *str)
 {
