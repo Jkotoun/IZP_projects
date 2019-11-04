@@ -42,8 +42,8 @@ void remove_newline(char *str)
     }
 }
 
-//globalni pole zastupujicich znaku
-char *key_chars[] = {"+", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+//pole zastupujicich znaku
+const char *key_chars[] = {"+", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
 
 //cislo kontaktu se shoduje s filtrem
 bool number_matches_filter(char *contact_number, char *input_filter)
@@ -59,7 +59,7 @@ bool number_matches_filter(char *contact_number, char *input_filter)
             current_filter_pos++;
             //je zkontrolovan cely vstup
             if (current_filter_pos == input_length)
-            {   
+            {
                 return true;
             }
         }
@@ -107,14 +107,22 @@ bool name_matches_filter(char *contact_name, char *input_filter)
 //vypsani vsech kontaktu v seznamu
 void write_all_contacts()
 {
-    char contact_name[MAX_CHARS+2];
-    char contact_number[MAX_CHARS+2];
-        while (fgets(contact_name, MAX_CHARS + 1, stdin) && fgets(contact_number, MAX_CHARS + 1, stdin))
+    char contact_name[MAX_CHARS + 2];
+    char contact_number[MAX_CHARS + 2];
+    while (fgets(contact_name, MAX_CHARS + 1, stdin) && fgets(contact_number, MAX_CHARS + 1, stdin))
+    {
+        if ((!strchr(contact_name, '\n') || !strchr(contact_number, '\n')))
         {
-            remove_newline(contact_name);
-            remove_newline(contact_number);
-            printf("%s, %s \n", contact_name, contact_number);
+            if (fgets(contact_name, MAX_CHARS + 2, stdin) != NULL)
+            {
+                fprintf(stderr, "Příliš dlouhý vstup (max 100 znaků)");
+                return;
+            }
         }
+        remove_newline(contact_name);
+        remove_newline(contact_number);
+        printf("%s, %s \n", contact_name, contact_number);
+    }
 }
 int main(int argc, char *argv[])
 {
@@ -128,7 +136,7 @@ int main(int argc, char *argv[])
         write_all_contacts();
         return 0;
     }
-    char* filter = argv[1];
+    char *filter = argv[1];
     //Vstupni filtr obsahuje neco jineho nez cislice
     if (!input_valid(filter))
     {
@@ -142,10 +150,19 @@ int main(int argc, char *argv[])
         //vypis kontaktu odpovidajici filtru
         if (number_matches_filter(contact_number, filter) || name_matches_filter(contact_name, filter))
         {
+            if ((!strchr(contact_name, '\n') || !strchr(contact_number, '\n')))
+            {
+                //Neni NULL - na windows posledni radek neobsahuje \n, ale EOF
+                if (fgets(contact_name, MAX_CHARS + 2, stdin) != NULL)
+                {
+                    fprintf(stderr, "Příliš dlouhý vstup (max 100 znaků)");
+                    return 1;
+                }
+            }
             remove_newline(contact_name);
             remove_newline(contact_number);
             printf("%s, %s \n", contact_name, contact_number);
-            found_matches++;   
+            found_matches++;
         }
     }
     if (found_matches == 0)
