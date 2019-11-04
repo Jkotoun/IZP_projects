@@ -5,7 +5,7 @@
 #define MAX_CHARS 100
 
 //pismena v retezci prevede na mala pismena
-void to_lower(char *str)
+void str_to_lower(char *str)
 {
     for (int i = 0; i < (int)strlen(str); i++)
     {
@@ -146,19 +146,20 @@ int main(int argc, char *argv[])
     //cteni jmena a cisla
     while (fgets(contact_name, MAX_CHARS + 2, stdin) && fgets(contact_number, MAX_CHARS + 2, stdin))
     {
-        to_lower(contact_name); //nezalezi na velikosti pismen
+        //overeni delky retezce
+        if ((!strchr(contact_name, '\n') || !strchr(contact_number, '\n')))
+        {
+            //Neni NULL - na windows posledni radek neobsahuje \n, ale EOF
+            if (fgets(contact_name, MAX_CHARS + 2, stdin) != NULL)
+            {
+                fprintf(stderr, "Příliš dlouhý vstup (max 100 znaků)");
+                return 1;
+            }
+        }
+        str_to_lower(contact_name);
         //vypis kontaktu odpovidajici filtru
         if (number_matches_filter(contact_number, filter) || name_matches_filter(contact_name, filter))
         {
-            if ((!strchr(contact_name, '\n') || !strchr(contact_number, '\n')))
-            {
-                //Neni NULL - na windows posledni radek neobsahuje \n, ale EOF
-                if (fgets(contact_name, MAX_CHARS + 2, stdin) != NULL)
-                {
-                    fprintf(stderr, "Příliš dlouhý vstup (max 100 znaků)");
-                    return 1;
-                }
-            }
             remove_newline(contact_name);
             remove_newline(contact_number);
             printf("%s, %s \n", contact_name, contact_number);
