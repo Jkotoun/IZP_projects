@@ -4,16 +4,19 @@
 
 #define MAX_CHARS 100
 
-//pismena v retezci prevede na mala pismena
-void str_to_lower(char *str)
+//vytvori z retezce retezec s malymi pismeny
+char* str_to_lower(char *source_str, char *dest_str)
 {
-    for (int i = 0; i < (int)strlen(str); i++)
+    strcpy(dest_str,source_str);
+    int dest_str_length = (int)strlen(dest_str); 
+    for (int i = 0; i < dest_str_length; i++)
     {
-        if (str[i] >= 'A' && str[i] <= 'Z')
+        if (dest_str[i] >= 'A' && dest_str[i] <= 'Z')
         {
-            str[i] = str[i] + 32;
+            dest_str[i] += 32;
         }
     }
+    return dest_str;
 }
 
 //overeni, zda jsou ve vstupu pouze cisla
@@ -105,11 +108,11 @@ bool name_matches_filter(char *contact_name, char *input_filter)
 }
 
 //vypsani vsech kontaktu v seznamu
-void write_all_contacts()
+void print_all_contacts()
 {
     char contact_name[MAX_CHARS + 2];
     char contact_number[MAX_CHARS + 2];
-    while (fgets(contact_name, MAX_CHARS + 1, stdin) && fgets(contact_number, MAX_CHARS + 1, stdin))
+    while (fgets(contact_name, MAX_CHARS + 1, stdin) != NULL && fgets(contact_number, MAX_CHARS + 1, stdin) !=NULL)
     {
         if ((!strchr(contact_name, '\n') || !strchr(contact_number, '\n')))
         {
@@ -129,11 +132,12 @@ int main(int argc, char *argv[])
     //+2 - do delky se nepocitaji znaky /n a /0
     char contact_name[MAX_CHARS + 2];
     char contact_number[MAX_CHARS + 2];
+    char lowered_name[MAX_CHARS + 2];
     int found_matches = 0;
     //Neni zadan filtr - vypis kontaktu, konec programu
     if (argc < 2)
     {
-        write_all_contacts();
+        print_all_contacts();
         return 0;
     }
     char *filter = argv[1];
@@ -156,9 +160,10 @@ int main(int argc, char *argv[])
                 return 1;
             }
         }
-        str_to_lower(contact_name);
+        
+        str_to_lower(contact_name,lowered_name);
         //vypis kontaktu odpovidajici filtru
-        if (number_matches_filter(contact_number, filter) || name_matches_filter(contact_name, filter))
+        if (number_matches_filter(contact_number, filter) || name_matches_filter(lowered_name, filter))
         {
             remove_newline(contact_name);
             remove_newline(contact_number);
