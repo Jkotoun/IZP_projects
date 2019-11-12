@@ -18,7 +18,6 @@ char* str_to_lower(char *source_str, char *dest_str)
     }
     return dest_str;
 }
-int bohos;
 //overeni, zda jsou ve vstupu pouze cisla
 bool input_valid(char *str)
 {
