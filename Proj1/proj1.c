@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #define MAX_CHARS 100
 
-enum ERRORS {ERROR_INPUT =1};
+enum ERRORS {ERROR_INPUT=1, DATA_ERROR};
 //vytvori z retezce retezec s malymi pismeny
 char* str_to_lower(char *source_str, char *dest_str)
 {
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
             if (fgets(contact_name, MAX_CHARS + 2, stdin) != NULL)
             {
                 fprintf(stderr, "Příliš dlouhý vstup (max 100 znaků)");
-                return ERROR_INPUT;
+                return DATA_ERROR;
             }
         }
         
