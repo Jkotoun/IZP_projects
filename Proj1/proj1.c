@@ -18,7 +18,7 @@ char* str_to_lower(char *source_str, char *dest_str)
     }
     return dest_str;
 }
-
+int bohos;
 //overeni, zda jsou ve vstupu pouze cisla
 bool input_valid(char *str)
 {
@@ -31,7 +31,6 @@ bool input_valid(char *str)
     }
     return true;
 }
-
 //Odstraneni znaku \n, prip. \r, aby bylo mozne vypisovat na jeden radek
 void remove_newline(char *str)
 {
