@@ -1,3 +1,9 @@
+///////////////////////////////////
+/*       Josef Kotoun            */
+/*         xkotou06              */
+/*        1. projekt IZP         */
+/*      Telefonni seznam         */
+///////////////////////////////////
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -13,6 +19,7 @@ char* str_to_lower(char *source_str, char *dest_str)
     {
         if (dest_str[i] >= 'A' && dest_str[i] <= 'Z')
         {
+            //rozdil pismen v ASCII
             dest_str[i] += 32;
         }
     }
@@ -159,7 +166,6 @@ int main(int argc, char *argv[])
                 return ERROR_DATA;
             }
         }
-        
         str_to_lower(contact_name,lowered_name);
         //vypis kontaktu odpovidajici filtru
         if (number_matches_filter(contact_number, filter) || name_matches_filter(lowered_name, filter))
