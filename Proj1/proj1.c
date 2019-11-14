@@ -3,6 +3,7 @@
 /*         xkotou06              */
 /*        1. projekt IZP         */
 /*      Telefonni seznam         */
+/*       Bonusove zadani         */          
 ///////////////////////////////////
 #include <stdio.h>
 #include <string.h>
