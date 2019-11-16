@@ -1,8 +1,15 @@
+/**************************************************/
+/*                 Josef Kotoun                   */
+/*                   xkotou06                     */
+/*                 2. projekt IZP                 */
+/*                Iterační výpočty                */
+/*  Výpočet pravcovního bodu diody pomocí bisekce */
+/*                                                */
+/**************************************************/  
+
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #define I_0 1e-12
 #define U_T 25.8563e-3
