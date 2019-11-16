@@ -14,8 +14,8 @@
 #define I_0 1e-12
 #define U_T 25.8563e-3
 
-//vypocet rozdilu Ir a Id - tvori funkce pro puleni intervalu
-double y(double u0, double r, double u_p)
+//vypocet rozdilu Id a Ir 
+double Id_Ir_difference(double u0, double r, double u_p)
 {
     double diode_current = I_0*(exp(u_p / U_T) -1);
     double resistor_current = (u0-u_p)/r;
@@ -29,10 +29,10 @@ double diode(double u0, double r, double eps)
     double b = u0;
     double u_p = 0;
     //vzdalenost mezi body intervalu
-    while(fabs(y(u0, r, a) - y(u0, r, b)) > eps)
+    while(fabs(Id_Ir_difference(u0, r, a) - Id_Ir_difference(u0, r, b)) > eps)
     {
         u_p = (a + b) / 2; 
-        if(y(u0, r, a) * y(u0, r, u_p) < 0)
+        if(Id_Ir_difference(u0, r, a) * Id_Ir_difference(u0, r, u_p) < 0)
         {
             b = u_p;
         }
