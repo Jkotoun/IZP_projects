@@ -7,6 +7,8 @@
 /*                                                */
 /**************************************************/  
 
+
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -52,9 +54,17 @@ int main(int argc, char **argv)
         return 1;
     }
     //prevod zadanych hodnot do double
-    double u_0 = atof(argv[1]);
-    double r = atof(argv[2]);
-    double eps = atof(argv[3]);
+    char *p_u0_end;
+    double u_0 = strtod(argv[1],&p_u0_end);
+    char *p_r_end;
+    double r = strtod(argv[2], &p_r_end);
+    char *p_eps_end;
+    double eps = strtod(argv[3],&p_eps_end);
+    if(*p_u0_end != '\0' || *p_r_end != '\0' || *p_eps_end != '\0')
+    {
+        fprintf(stderr, "Jeden z argumentu neni cislo");
+        return 1;
+    }
     //vypocet napeti a proudu v pracovnim bode
     double u_p = diode(u_0,r,eps);
     double i_p = I_0 * (exp(u_p / U_T) -1);
