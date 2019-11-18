@@ -62,6 +62,11 @@ int main(int argc, char **argv)
         fprintf(stderr, "Jeden z argumentu neni cislo");
         return 1;
     }
+    if(eps == 0 || eps < 1e-16)
+    {
+        fprintf(stderr, "Příliš velká absolutní přesnost");
+        return 1;
+    }
     //vypocet napeti a proudu v pracovnim bode
     double u_p = diode(u_0,r,eps);
     double i_p = I_0 * (exp(u_p / U_T) -1);
