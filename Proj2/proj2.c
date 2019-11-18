@@ -57,11 +57,13 @@ int main(int argc, char **argv)
     double r = strtod(argv[2], &p_r_end);
     char *p_eps_end;
     double eps = strtod(argv[3],&p_eps_end);
+    //osetreni, jestli byl vstup validni realne cislo
     if(*p_u0_end != '\0' || *p_r_end != '\0' || *p_eps_end != '\0')
     {
         fprintf(stderr, "Jeden z argumentu neni cislo");
         return 1;
     }
+    //overeni jestli neni zadana presnost moc velka (program se muze zacyklit)
     if(eps == 0 || eps < 1e-16)
     {
         fprintf(stderr, "Příliš velká absolutní přesnost");
