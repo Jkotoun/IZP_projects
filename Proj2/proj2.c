@@ -6,9 +6,6 @@
 /*  Výpočet pravcovního bodu diody pomocí bisekce */
 /*                                                */
 /**************************************************/  
-
-
-
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
