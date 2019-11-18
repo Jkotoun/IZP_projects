@@ -13,6 +13,8 @@
 #define I_0 1e-12
 #define U_T 25.8563e-3
 
+enum ERRORS {ARGS_ERROR = 1, FORMAT_ERROR, EPS_ERROR};
+
 //vypocet rozdilu Id a Ir 
 double Id_Ir_difference(double u0, double r, double u_p)
 {
@@ -42,13 +44,16 @@ double diode(double u0, double r, double eps)
     }
     return u_p;
 }
+
+
+
 int main(int argc, char **argv)
 {
     //Malo argumentu - min 3
     if(argc<4)
     {
         fprintf(stderr, "Zadano malo argumentu");
-        return 1;
+        return ARGS_ERROR;
     }
     //prevod zadanych hodnot do double
     char *p_u0_end;
@@ -60,14 +65,14 @@ int main(int argc, char **argv)
     //osetreni, jestli byl vstup validni realne cislo
     if(*p_u0_end != '\0' || *p_r_end != '\0' || *p_eps_end != '\0')
     {
-        fprintf(stderr, "Jeden z argumentu neni cislo");
-        return 1;
+        fprintf(stderr, "Nektery z argumentu neni cislo");
+        return FORMAT_ERROR;
     }
     //overeni jestli neni zadana presnost moc velka (program se muze zacyklit)
     if(eps == 0 || eps < 1e-16)
     {
-        fprintf(stderr, "Příliš velká absolutní přesnost");
-        return 1;
+        fprintf(stderr, "Prilis velka absolutni presnost");
+        return EPS_ERROR;
     }
     //vypocet napeti a proudu v pracovnim bode
     double u_p = diode(u_0,r,eps);
