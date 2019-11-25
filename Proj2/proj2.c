@@ -31,7 +31,7 @@ double diode(double u0, double r, double eps)
     double b = u0;
     double u_p = 0;
     int i = 0;
-     u_p = (a + b) / 2; 
+
     while(fabs(a-b) >= eps)
     {
         u_p = (a + b) / 2; 
@@ -49,7 +49,8 @@ double diode(double u0, double r, double eps)
         {
             return u_p;
         } 
-        i++;
+        i++;      
+       
     }
     return u_p;
 }
