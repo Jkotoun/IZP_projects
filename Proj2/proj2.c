@@ -23,7 +23,7 @@ double Id_Ir_difference(double u0, double r, double u_p)
     double resistor_current = (u0-u_p)/r;
     return diode_current - resistor_current;
 }
-//vypocet napeti v pracovnim bodu diody pomoci puleni intervalu na funkci y
+//vypocet napeti v pracovnim bodu diody pomoci puleni intervalu
 double diode(double u0, double r, double eps)
 {
     //interval 0 - U0
@@ -31,7 +31,6 @@ double diode(double u0, double r, double eps)
     double b = u0;
     double u_p = 0;
     int i = 0;
-    //vzdalenost mezi body intervalu
      u_p = (a + b) / 2; 
     while(fabs(a-b) >= eps)
     {
@@ -62,7 +61,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "error: invalid arguments");
         return ARGS_ERROR;
     }
-    //prevod zadanych hodnot do double
     char *p_u0_end;
     double u_0 = strtod(argv[1],&p_u0_end);
     char *p_r_end;
@@ -75,13 +73,12 @@ int main(int argc, char **argv)
         fprintf(stderr, "error: invalid arguments\n");
         return FORMAT_ERROR;
     }
-    //osetreni zaporneho napeti a odporu
+    //osetreni zaporneho napeti, odporu a presnosti
     if(r < 0 || u_0 < 0 ||eps < 0)
     {
         fprintf(stderr, "error: invalid arguments\n");
         return DATA_ERROR;
     }
-    //vypocet napeti a proudu v pracovnim bode
     double u_p = diode(u_0,r,eps);
     double i_p = I_0 * (exp(u_p / U_T) -1);
     printf("Up=%g V\n",u_p);
