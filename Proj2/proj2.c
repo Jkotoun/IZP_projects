@@ -12,8 +12,9 @@
 
 #define I_0 1e-12
 #define U_T 25.8563e-3
+#define MAX_ITERATIONS 1000
 
-enum ERRORS {ARGS_ERROR = 1, FORMAT_ERROR, EPS_ERROR};
+enum ERRORS {ARGS_ERROR = 1, FORMAT_ERROR, EPS_ERROR, DATA_ERROR};
 
 //vypocet rozdilu Id a Ir 
 double Id_Ir_difference(double u0, double r, double u_p)
@@ -29,10 +30,13 @@ double diode(double u0, double r, double eps)
     double a = 0;
     double b = u0;
     double u_p = 0;
+    int i = 0;
     //vzdalenost mezi body intervalu
-    while(fabs(Id_Ir_difference(u0, r, a) - Id_Ir_difference(u0, r, b)) > eps)
+     u_p = (a + b) / 2; 
+    while(fabs(a-b) >= eps)
     {
         u_p = (a + b) / 2; 
+        //vyber spravneho intervalu
         if(Id_Ir_difference(u0, r, a) * Id_Ir_difference(u0, r, u_p) < 0)
         {
             b = u_p;
@@ -40,19 +44,22 @@ double diode(double u0, double r, double eps)
         else
         {
             a = u_p;
-        }   
+        }  
+        //omezeni iteraci kvuli zacykleni pri prilis velke presnosti
+        if(i>MAX_ITERATIONS)
+        {
+            return u_p;
+        } 
+        i++;
     }
     return u_p;
 }
-
-
-
 int main(int argc, char **argv)
 {
     //Malo argumentu - min 3
     if(argc<4)
     {
-        fprintf(stderr, "Zadano malo argumentu");
+        fprintf(stderr, "error: invalid arguments");
         return ARGS_ERROR;
     }
     //prevod zadanych hodnot do double
@@ -63,16 +70,16 @@ int main(int argc, char **argv)
     char *p_eps_end;
     double eps = strtod(argv[3],&p_eps_end);
     //osetreni, jestli byl vstup validni realne cislo
-    if(*p_u0_end != '\0' || *p_r_end != '\0' || *p_eps_end != '\0')
+    if(*p_u0_end != '\0' || *p_r_end != '\0' ||  *p_eps_end != '\0')
     {
-        fprintf(stderr, "Nektery z argumentu neni cislo");
+        fprintf(stderr, "error: invalid arguments\n");
         return FORMAT_ERROR;
     }
-    //overeni jestli neni zadana presnost moc velka (program se muze zacyklit)
-    if(eps == 0 || eps < 1e-16)
+    //osetreni zaporneho napeti a odporu
+    if(r < 0 || u_0 < 0 ||eps < 0)
     {
-        fprintf(stderr, "Prilis velka absolutni presnost");
-        return EPS_ERROR;
+        fprintf(stderr, "error: invalid arguments\n");
+        return DATA_ERROR;
     }
     //vypocet napeti a proudu v pracovnim bode
     double u_p = diode(u_0,r,eps);
