@@ -54,7 +54,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "error: invalid arguments");
         return ARGS_ERROR;
     }
-    usdfuishdfui __SHRT_WIDTH__sihsdifhsdf
     char *p_u0_end;
     double u_0 = strtod(argv[1],&p_u0_end);
     char *p_r_end;
