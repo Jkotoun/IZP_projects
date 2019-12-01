@@ -65,6 +65,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Jeden z argumentu neni cislo");
         return 1;
     }
+    //bozek
     //vypocet napeti a proudu v pracovnim bode
     double u_p = diode(u_0,r,eps);
     double i_p = I_0 * (exp(u_p / U_T) -1);
