@@ -3,7 +3,7 @@
 /*                   xkotou06                     */
 /*                 2. projekt IZP                 */
 /*                Iterační výpočty                */
-/*  Výpočet pravcovního bodu diody pomocí bisekce */
+/*  Výpočet pracovního bodu diody pomocí bisekce  */
 /*                                                */
 /**************************************************/  
 #include <stdio.h>
@@ -12,7 +12,6 @@
 
 #define I_0 1e-12
 #define U_T 25.8563e-3
-#define MAX_ITERATIONS 1000
 
 enum ERRORS {ARGS_ERROR = 1, FORMAT_ERROR, EPS_ERROR, DATA_ERROR};
 
@@ -30,10 +29,10 @@ double diode(double u0, double r, double eps)
     double a = 0;
     double b = u0;
     double u_p = 0;
-    int i = 0;
-
-    while(fabs(a-b) >= eps)
+    double prev_val = 0;
+    while(b-a >= eps && prev_val != (a+b)/2)
     {
+        prev_val = u_p;
         u_p = (a + b) / 2; 
         //vyber spravneho intervalu
         if(Id_Ir_difference(u0, r, a) * Id_Ir_difference(u0, r, u_p) < 0)
@@ -44,13 +43,6 @@ double diode(double u0, double r, double eps)
         {
             a = u_p;
         }  
-        //omezeni iteraci kvuli zacykleni pri prilis velke presnosti
-        if(i>MAX_ITERATIONS)
-        {
-            return u_p;
-        } 
-        i++;      
-       
     }
     return u_p;
 }
@@ -62,6 +54,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "error: invalid arguments");
         return ARGS_ERROR;
     }
+    usdfuishdfui __SHRT_WIDTH__sihsdifhsdf
     char *p_u0_end;
     double u_0 = strtod(argv[1],&p_u0_end);
     char *p_r_end;
@@ -75,7 +68,7 @@ int main(int argc, char **argv)
         return FORMAT_ERROR;
     }
     //osetreni zaporneho napeti, odporu a presnosti
-    if(r < 0 || u_0 < 0 ||eps < 0)
+    if(r <= 0 || u_0 < 0 ||eps < 0)
     {
         fprintf(stderr, "error: invalid arguments\n");
         return DATA_ERROR;
