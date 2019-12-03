@@ -19,6 +19,12 @@ enum BORDERS
     BORDER_RIGHT,
     BORDER_TOP_BOT = 4
 };
+
+enum PATHFINDING_METHOD
+{
+    RIGHT_HAND,
+    LEFT_HAND
+};
 //struktura pro mapu bludiste
 typedef struct map
 {
@@ -89,15 +95,131 @@ int map_load(Map *map, FILE *f)
     }
     return 0;
 }
+int start_border(Map *map, int r, int c, int leftright)
+{
+    //odecteni 1 - indexy od 0
+    c = c-1;
+    r = r-1; 
+        if(c == 0 || c == map->cols -1 || r == 0 || r == map->rows-1)
+        {
+            //prvni radek
+            if (r==0)
+            {
+                if(c==0 && !isborder(map,r,c,BORDER_LEFT))
+                {
+                    return leftright ? BORDER_TOP_BOT:BORDER_RIGHT;
+                }
+                else if(c == map->cols-1 && !isborder(map,r,c,BORDER_RIGHT))
+                {
+                    return leftright ? BORDER_LEFT:BORDER_TOP_BOT;
+                }
+                else
+                {
+                    return leftright? BORDER_RIGHT: BORDER_LEFT;
+                }   
+            }
+            //posledni radek
+            else if (r == map->rows-1)
+            {
+                if(c == 0 && !isborder(map,r,c,BORDER_LEFT))
+                {
+                    if(r%2==0)
+                        return leftright? BORDER_TOP_BOT:BORDER_RIGHT;
+                    else
+                        return leftright? BORDER_RIGHT:BORDER_TOP_BOT;
+                }
+                else if(c == map->cols-1 && !isborder(map,r,c,BORDER_RIGHT))
+                {
+                    if(r%2==0)
+                        return leftright? BORDER_LEFT:BORDER_TOP_BOT;
+                    else
+                        return leftright? BORDER_TOP_BOT:BORDER_LEFT;
+                }
+                else
+                {
+                    return leftright? BORDER_LEFT:BORDER_RIGHT;
+                }
+            }
+            //ostatni sude
+            else if(r%2==0)
+            {
+                if(c==0)
+                {
+                    return leftright? BORDER_TOP_BOT:BORDER_RIGHT;
+                }
+                    
+                else if(c == map->cols-1)
+                {
+                    return leftright? BORDER_LEFT:BORDER_TOP_BOT;
+                }
+            }
+            //ostatni liche
+            else
+            {
+                if(c==0)
+                {
+                    return leftright? BORDER_RIGHT:BORDER_TOP_BOT;
+                }
+                else if(c == map->cols -1)
+                {
+                    return leftright? BORDER_TOP_BOT:BORDER_LEFT;
+                }
+                    
+            }
+        }
+        return -1;
+    
+}
+
 //nalezeni pomoci metody prave ruky
 void r_pathfinding(Map *map, int r, int c, int start_border)
 {
-    int last_step_x = 1;
-    int last_step_y = 0;
+    //odecteni 1 - index od 0
     int current_row = r-1;
     int current_col = c-1;
+    int last_step_x = 0;
+    int last_step_y = 0;
+    //normalni trojuhelnik
+    if(current_col % 2 != current_row % 2)
+    {
+        if(start_border == BORDER_TOP_BOT)
+        {
+            last_step_x = 1;
+            last_step_y = 0;
+        }
+        else if(start_border == BORDER_LEFT)
+        {
+            last_step_x = -1;
+            last_step_y = 0;
+        }
+        else if(start_border == BORDER_RIGHT)
+        {
+            last_step_x = 0;
+            last_step_y = -1;   
+        }
+    }
+    //otoceny
+    else
+    {
+        if(start_border == BORDER_TOP_BOT)
+        {
+            last_step_x = -1;
+            last_step_y = 0;
+        }
+         else if(start_border == BORDER_LEFT)
+        {
+            last_step_x = 0;
+            last_step_y = 1;
+        }
+        else if(start_border == BORDER_RIGHT)
+        {
+            last_step_x = 1;
+            last_step_y = 0;   
+        }
+    }
+    
     int next_step_x = 0, next_step_y = 0;
-    while (current_row < map->rows && current_col < map->cols)
+    while (current_row < map->rows && current_row >= 0 && current_col < map->cols && current_col >= 0)
     {
         //otoceny trojuhelnik
         if ((current_col % 2) == (current_row % 2))
@@ -160,7 +282,6 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
         //normalni trojuhelnik
         else
         {
-
                 if (last_step_x == 1)
                 {
                     if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
@@ -224,6 +345,182 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
         current_row += next_step_y;
     }
 }
+
+void l_pathfinding(Map *map, int r, int c, int start_border)
+{
+    //odecteni 1 - index od 0
+    int current_row = r-1;
+    int current_col = c-1;
+    int last_step_x = 0;
+    int last_step_y = 0;
+    //normalni trojuhelnik
+    if(current_col % 2 != current_row % 2)
+    {
+        if(start_border == BORDER_TOP_BOT)
+        {
+            last_step_x = -1;
+            last_step_y = 0;
+        }
+        else if(start_border == BORDER_LEFT)
+        {
+            last_step_x = 0;
+            last_step_y = -1;
+        }
+        else if(start_border == BORDER_RIGHT)
+        {
+            last_step_x = 1;
+            last_step_y = 0;   
+        }
+    }
+    //otoceny
+    else
+    {
+        if(start_border == BORDER_TOP_BOT)
+        {
+            last_step_x = 1;
+            last_step_y = 0;
+        }
+         else if(start_border == BORDER_LEFT)
+        {
+            last_step_x = -1;
+            last_step_y = 0;
+        }
+        else if(start_border == BORDER_RIGHT)
+        {
+            last_step_x = 0;
+            last_step_y = 1;   
+        }
+    }
+    
+    int next_step_x = 0, next_step_y = 0;
+    while (current_row < map->rows && current_row >= 0 && current_col < map->cols && current_col >= 0)
+    {
+        //otoceny trojuhelnik
+        if ((current_col % 2) == (current_row % 2))
+        {
+            if (last_step_x == 1)
+            {
+                if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
+                {
+                    next_step_y = -1;
+                    next_step_x = 0;
+                }
+                else if (!isborder(map, current_row, current_col, BORDER_RIGHT))
+                {
+                    next_step_y = 0;
+                    next_step_x = 1;
+                }
+                else
+                {
+                    next_step_y = 0;
+                    next_step_x = -1;
+                }
+            }
+            else if (last_step_x == -1)
+            {
+                if (!isborder(map, current_row, current_col, BORDER_LEFT))
+                {
+                    next_step_y = 0;
+                    next_step_x = -1;
+                }
+                else if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
+                {
+                    next_step_y = -1;
+                    next_step_x = 0;
+                }
+                else
+                {
+                    next_step_y = 0;
+                    next_step_x = 1;
+                }
+            }
+            else if (last_step_y == 1)
+            {
+                if (!isborder(map, current_row, current_col, BORDER_RIGHT))
+                {
+                    next_step_y = 0;
+                    next_step_x = 1;
+                }
+                else if (!isborder(map, current_row, current_col, BORDER_LEFT))
+                {
+                    next_step_y = 0;
+                    next_step_x = -1;
+                }
+                else
+                {
+                    next_step_y = -1;
+                    next_step_x = 0;
+                }
+            }
+        }
+        //normalni trojuhelnik
+        else
+        {
+                if (last_step_x == 1)
+                {
+                    if (!isborder(map, current_row, current_col, BORDER_RIGHT))
+                    {
+                        next_step_y = 0;
+                        next_step_x = 1;
+                    }
+                    else if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
+                    {
+                        next_step_y = 1;
+                        next_step_x = 0;
+                    }
+                    else
+                    {
+                        next_step_y = 0;    
+                        next_step_x = -1;
+                    }
+                }
+                else if (last_step_x == -1)
+                {
+                    if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
+                    {
+                        next_step_y = 1;
+                        next_step_x = 0;
+                    }
+                    else if (!isborder(map, current_row, current_col, BORDER_LEFT))
+                    {
+                        next_step_y = 0;
+                        next_step_x = -1;
+                    }
+                    else
+                    {
+                        next_step_y = 0;
+                        next_step_x = 1;
+                    }
+                }
+                else if (last_step_y == -1)
+                {
+                    if (!isborder(map, current_row, current_col, BORDER_LEFT))
+                    {
+                        next_step_y = 0;
+                        next_step_x = -1;
+                    }
+                    else if (!isborder(map, current_row, current_col, BORDER_RIGHT))
+                    {
+                        next_step_y = 0;
+                        next_step_x = 1;
+                    }
+                    else
+                    {
+                        next_step_y = 1;
+                        next_step_x = 0;
+                    }
+                }
+            
+        }
+        printf("%d,%d \n", current_row + 1, current_col + 1);
+        last_step_x = next_step_x;
+        last_step_y = next_step_y;
+        current_col += next_step_x;
+        current_row += next_step_y;
+    }
+}
+
+
 //overeni validity mapy, vraci logickou hodnotu
 bool isvalid_map(Map *map)
 {
@@ -362,13 +659,28 @@ int main(int argc, char **argv)
         //vyhledani cesty v bludisti
         else
         {
+            int r = atoi(argv[2]);
+            int c = atoi(argv[3]);
+            
             if (strcmp(argv[1], "--lpath") == 0)
             {
-                //TODO LPATH()
+                int border_st = start_border(&maze_map,r,c,LEFT_HAND);
+                if(border_st == -1)
+                {
+                    fprintf(stderr, "Nespravna pocatecni hranice");
+                    return ARGS_ERROR;
+                }
+                l_pathfinding(&maze_map,r,c, border_st);
             }
             else
             {
-                r_pathfinding(&maze_map,atoi(argv[2]),atoi(argv[3]), 4);
+                int border_st = start_border(&maze_map,r,c,RIGHT_HAND);
+                if(border_st == -1)
+                {
+                    fprintf(stderr, "Nespravna pocatecni hranice");
+                    return ARGS_ERROR;
+                }
+                r_pathfinding(&maze_map,r,c, border_st);
 
             }
         }
