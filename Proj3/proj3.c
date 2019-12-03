@@ -26,7 +26,6 @@ typedef struct map
     int cols;
     unsigned char *cells;
 } Map;
-
 //konstruktor mapy - alokace pameti, nastaveni hodnoty radku a sloupcu
 Map map_ctor(int rows, int cols)
 {
@@ -36,7 +35,6 @@ Map map_ctor(int rows, int cols)
     map.cells = malloc(sizeof(unsigned char) * rows * cols);
     return map;
 }
-
 //uvolneni pameti po mape
 void map_dtor(Map *map)
 {
@@ -44,7 +42,6 @@ void map_dtor(Map *map)
     map->rows = 0;
     map->cols = 0;
 }
-
 //inicializace vychozich hodnot na alokovanou pamet
 void map_init(Map *map)
 {
@@ -53,18 +50,13 @@ void map_init(Map *map)
         map->cells[i] = 0;
     }
 }
-
-
-
 //je na dane hranici stena? - rozhoduje podle jednotlivych bitu cisel ze souboru, jako hodnoty border predpoklada binarni hodnoty dane hranice (1|2|4)
-
 bool isborder(Map *map, int r, int c, int border)
 {
     char cell = map->cells[r * map->cols + c];
     int cell_val = cell - '0';
     return (border & cell_val) == border;
 }
-
 //nacitani mapy ze souboru do datove struktury map
 int map_load(Map *map, FILE *f)
 {
@@ -97,8 +89,8 @@ int map_load(Map *map, FILE *f)
     }
     return 0;
 }
-
-void l_pathfinding(Map *map, int r, int c, int start_border)
+//nalezeni pomoci metody prave ruky
+void r_pathfinding(Map *map, int r, int c, int start_border)
 {
     int last_step_x = 1;
     int last_step_y = 0;
@@ -232,8 +224,6 @@ void l_pathfinding(Map *map, int r, int c, int start_border)
         current_row += next_step_y;
     }
 }
-
-
 //overeni validity mapy, vraci logickou hodnotu
 bool isvalid_map(Map *map)
 {
@@ -281,85 +271,6 @@ bool isvalid_map(Map *map)
     }
     return true;
 }
-/*
-int start_border(Map *map, int r, int c, int leftright)
-{
-    //nejedna se o kraj bludiste
-    if(r != 0 && c!= 0 && c!= map->cols -1 && r!=map->rows -1)
-    {
-        return -1;
-    }
-    if(leftright == LEFT_HAND)
-    {
-
-    }
-    else
-    {
-        //levy sloupec
-        if(c == 0)
-        {
-            //prvni policko
-            if(r==0)
-            {
-                //vstup zleva
-                if(isborder(map,r,c,BORDER_TOP_BOT)
-                {
-                    return BORDER_RIGHT;
-                }
-                 //vstup shora
-                else
-                {
-                    return BORDER_LEFT
-                }
-                
-            }
-            //spoledni policko
-            else if(r == map->rows -1)
-            {
-
-                return BORDER_LEFT;
-            }
-            
-
-        }
-        //lichy radek, levy sloupec
-        else if (r%2!=0 && c==0)
-        {
-            if(isborder(map,r,c,BORDER_TOP_BOT)
-            {
-                return BORDER_RIGHT;
-            }
-            //vstup shora
-            else
-            {
-                return BORDER_LEFT;
-            }
-        }
-                
-    }
-    
-}
-*/
-//mazeprint - test function
-void maze_print(Map *map)
-{
-    int col_pos = 0;
-    int row_pos = 0;
-
-    for (int i = 0; i < map->cols * map->rows; i++)
-    {
-        if (col_pos == map->cols)
-        {
-            printf("\n");
-            col_pos = 0;
-            row_pos++;
-        }
-        printf(" %c ", map->cells[row_pos * map->cols + col_pos]);
-        col_pos++;
-    }
-    printf("\n");
-}
-
 //Funkce vracejici logickou hodnotu podle toho, jestli je retezec cislo
 bool str_is_num(char *str)
 {
@@ -457,7 +368,7 @@ int main(int argc, char **argv)
             }
             else
             {
-                l_pathfinding(&maze_map,atoi(argv[2]),atoi(argv[3]), 4);
+                r_pathfinding(&maze_map,atoi(argv[2]),atoi(argv[3]), 4);
 
             }
         }
