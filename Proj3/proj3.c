@@ -186,9 +186,13 @@ void find_path(Map *map, int r, int c, int start_border, int method_type)
     if(current_col % 2 != current_row % 2)
     {
         //rozdeleni podle toho, jaka hranice je po prave / leve ruce - urceni hodnot podle metody
+        if(method == LEFT_HAND)
+        {
+            
+        }
         if(start_border == BORDER_TOP_BOT)
         {
-            method == true  ? (last_step_x = -1) : (last_step_x = 1);
+            method? (last_step_x = -1) : (last_step_x = 1);
             last_step_y = 0;
         }
         else if(start_border == BORDER_LEFT)
@@ -199,7 +203,7 @@ void find_path(Map *map, int r, int c, int start_border, int method_type)
         else if(start_border == BORDER_RIGHT)
         {
             method? (last_step_x  = 1) : (last_step_x = 0);
-            method? (last_step_x = 0) : (last_step_y = -1);   
+            method? (last_step_y = 0) : (last_step_y = -1);   
         }
     }
     //otoceny
@@ -233,6 +237,7 @@ void find_path(Map *map, int r, int c, int start_border, int method_type)
             //posledni moznost u obou stejna - vraceni se zpet 
             if (last_step_x == 1)
             {
+                if(method)
                 if (!isborder(map, current_row, current_col, BORDER_RIGHT))
                 {
                     method? (next_step_y = -1) : (next_step_y = 0);
