@@ -654,11 +654,15 @@ int main(int argc, char **argv)
                 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 find_path(&maze_map,r,c,border_st,RIGHT_HAND);
 =======
                 r_pathfinding2(&maze_map,r,c, border_st);
 >>>>>>> development
 =======
+=======
+
+>>>>>>> development
                 pathfinding(&maze_map,r,c, border_st,RIGHT_HAND);
 >>>>>>> development
 
