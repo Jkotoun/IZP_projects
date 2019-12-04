@@ -177,7 +177,7 @@ int start_border(Map *map, int r, int c, int leftright)
     
 }
 
-void r_pathfinding2(Map *map, int r, int c, int start_border)
+void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
 {
     //normalni
     Triangle tr1_directions[]= 
@@ -187,7 +187,7 @@ void r_pathfinding2(Map *map, int r, int c, int start_border)
         {-1, 0} //doleva
     };
     //otoceny
-    Triangle tr2[]= 
+    Triangle tr2_directions[]= 
     { 
         {1,0}, //doprava
         {0,-1}, //nahoru
@@ -204,15 +204,31 @@ void r_pathfinding2(Map *map, int r, int c, int start_border)
     if(current_row % 2 != current_col %2)
     {
         int i=0;
-        while(tr2_borders[i] != start_border)
-            i++;
+        if(finding_method == LEFT_HAND)
+        {
+            while(tr1_borders[(i+1)%3] != start_border)
+                i++;
+        }
+        else
+        {
+            while(tr1_borders[i] != start_border)
+                i++;
+        }
         last_move = i;
     }
     else
     {
         int i=0;
-        while(tr1_borders[(i+2)%3] != start_border)
-            i++;
+        if(finding_method == LEFT_HAND)
+        {
+            while(tr2_borders[i] != start_border)
+                i++;
+        }
+        else
+        {
+           while(tr2_borders[(i+2)%3] != start_border)
+                i++;
+        }
         last_move = i;
 
     }
@@ -224,10 +240,25 @@ void r_pathfinding2(Map *map, int r, int c, int start_border)
     if(current_row % 2 != current_col %2)
     {
         //index prioritiniho kroku v normalnim trojuhelniku odpovida indexu predchoziho kroku v otocenem trojuhelniku
-        next_move = last_move;
+        if(finding_method == LEFT_HAND)
+        {
+            next_move = (last_move + 1)%3;
+        }
+        else
+        {
+            next_move = last_move;    
+        }
         while(isborder(map,current_row,current_col,tr1_borders[next_move]))//hranice kam chci jit
         {
-            next_move = (next_move + 1) % 3; 
+            if(finding_method == LEFT_HAND)
+            {
+                next_move = (next_move -1 +3)%3;
+            }
+            else
+            {
+                next_move = (next_move + 1) % 3; 
+            }
+            
         }
         next_x = tr1_directions[next_move].x;
         next_y = tr1_directions[next_move].y;
@@ -235,13 +266,28 @@ void r_pathfinding2(Map *map, int r, int c, int start_border)
     else
     {
         //index prioritiniho kroku v otocenem trojuhelniku odpovida indexu zvetsenemu o 2 predchoziho kroku v normalnim trojuhelniku
-        next_move = (last_move + 2)%3;
+        if(finding_method == LEFT_HAND)
+        {
+            next_move = last_move;
+        }
+        else
+        {
+            next_move = (last_move + 2)%3;
+        }
         while(isborder(map,current_row,current_col,tr2_borders[next_move]))//hranice kam chci jit
         {
-            next_move = (next_move + 1) % 3; 
+            if(finding_method == LEFT_HAND)
+            {
+                next_move = (next_move -1 +3)%3;
+            }
+            else
+            {
+                next_move = (next_move + 1) % 3; 
+            }
+            
         }
-        next_x = tr2[next_move].x;
-        next_y = tr2[next_move].y;
+        next_x = tr2_directions[next_move].x;
+        next_y = tr2_directions[next_move].y;
     }
     printf("%d,%d\n", current_row + 1, current_col +1);
     current_row += next_y;
@@ -592,7 +638,11 @@ int main(int argc, char **argv)
                     fprintf(stderr, "Nespravna pocatecni hranice");
                     return ARGS_ERROR;
                 }
+<<<<<<< HEAD
                 find_path(&maze_map,r,c,border_st,LEFT_HAND);
+=======
+                pathfinding(&maze_map,r,c, border_st,LEFT_HAND);
+>>>>>>> development
             }
             else
             {
@@ -603,9 +653,13 @@ int main(int argc, char **argv)
                     return ARGS_ERROR;
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
                 find_path(&maze_map,r,c,border_st,RIGHT_HAND);
 =======
                 r_pathfinding2(&maze_map,r,c, border_st);
+>>>>>>> development
+=======
+                pathfinding(&maze_map,r,c, border_st,RIGHT_HAND);
 >>>>>>> development
 
             }
