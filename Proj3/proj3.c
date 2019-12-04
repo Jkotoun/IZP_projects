@@ -179,33 +179,8 @@ int start_border(Map *map, int r, int c, int leftright)
 
 void r_pathfinding2(Map *map, int r, int c, int start_border)
 {
-    //normalni - serazene smery podle pole smeru
-    int tr1_directions[] = {BORDER_TOP_BOT, BORDER_RIGHT, BORDER_LEFT};
-    //otoceny
-    int tr2_directions[] = {BORDER_RIGHT, BORDER_TOP_BOT, BORDER_LEFT};
-    int current_row = r - 1;
-    int current_col = c - 1;
-    int last_move;
     //normalni
-    if(current_row % 2 != current_col %2)
-    {
-        int i=0;
-        while(tr2_directions[i] != start_border)
-            i++;
-        last_move = i;
-    }
-    else
-    {
-        int i=0;
-        while(tr1_directions[(i+2)%3] != start_border)
-            i++;
-        last_move = i;
-
-    }
-    int next_move;
-    int next_x, next_y;
-    //normalni
-    Triangle tr1[]= 
+    Triangle tr1_directions[]= 
     { 
         {0,1}, //dolu
         {1,0}, //doprava
@@ -218,6 +193,31 @@ void r_pathfinding2(Map *map, int r, int c, int start_border)
         {0,-1}, //nahoru
         {-1, 0} //doleva
     };
+    //normalni - serazene smery podle pole smeru
+    int tr1_borders[] = {BORDER_TOP_BOT, BORDER_RIGHT, BORDER_LEFT};
+    //otoceny
+    int tr2_borders[] = {BORDER_RIGHT, BORDER_TOP_BOT, BORDER_LEFT};
+    int current_row = r - 1;
+    int current_col = c - 1;
+    int last_move;
+    //normalni
+    if(current_row % 2 != current_col %2)
+    {
+        int i=0;
+        while(tr2_borders[i] != start_border)
+            i++;
+        last_move = i;
+    }
+    else
+    {
+        int i=0;
+        while(tr1_borders[(i+2)%3] != start_border)
+            i++;
+        last_move = i;
+
+    }
+    int next_move;
+    int next_x, next_y;
     while (current_row < map->rows && current_row >= 0 && current_col < map->cols && current_col >= 0)
     {
     //normalni
@@ -225,18 +225,18 @@ void r_pathfinding2(Map *map, int r, int c, int start_border)
     {
         //index prioritiniho kroku v normalnim trojuhelniku odpovida indexu predchoziho kroku v otocenem trojuhelniku
         next_move = last_move;
-        while(isborder(map,current_row,current_col,tr1_directions[next_move]))//hranice kam chci jit
+        while(isborder(map,current_row,current_col,tr1_borders[next_move]))//hranice kam chci jit
         {
             next_move = (next_move + 1) % 3; 
         }
-        next_x = tr1[next_move].x;
-        next_y = tr1[next_move].y;
+        next_x = tr1_directions[next_move].x;
+        next_y = tr1_directions[next_move].y;
     }
     else
     {
         //index prioritiniho kroku v otocenem trojuhelniku odpovida indexu zvetsenemu o 2 predchoziho kroku v normalnim trojuhelniku
         next_move = (last_move + 2)%3;
-        while(isborder(map,current_row,current_col,tr2_directions[next_move]))//hranice kam chci jit
+        while(isborder(map,current_row,current_col,tr2_borders[next_move]))//hranice kam chci jit
         {
             next_move = (next_move + 1) % 3; 
         }
