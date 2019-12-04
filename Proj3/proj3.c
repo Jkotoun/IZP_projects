@@ -101,6 +101,7 @@ int map_load(Map *map, FILE *f)
     }
     return 0;
 }
+//vrati prvni referencni hranici podle zpusobu hledani
 int start_border(Map *map, int r, int c, int leftright)
 {
     //odecteni 1 - indexy od 0
@@ -169,14 +170,12 @@ int start_border(Map *map, int r, int c, int leftright)
                 else if(c == map->cols -1)
                 {
                     return leftright? BORDER_TOP_BOT:BORDER_LEFT;
-                }
-                    
+                }      
             }
         }
         return -1;
-    
 }
-
+//funkce pro najiti cesty ven podle zadanych policek na kraji, metody hledani a prvni referencni hranice
 void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
 {
     //normalni
