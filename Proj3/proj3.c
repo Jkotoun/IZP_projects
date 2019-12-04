@@ -298,30 +298,38 @@ void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
 }
 
 //nalezeni pomoci metody prave ruky
-void r_pathfinding(Map *map, int r, int c, int start_border)
+void find_path(Map *map, int r, int c, int start_border, int method_type)
 {
     //odecteni 1 - index od 0
     int current_row = r-1;
     int current_col = c-1;
     int last_step_x = 0;
     int last_step_y = 0;
+    bool method = method_type;
+    //zjisteni, jakym smerem ma byt prvni krok
+    //rozdeleni podle typu trojuhelniku (normalni, otoceny)
     //normalni trojuhelnik
     if(current_col % 2 != current_row % 2)
     {
+        //rozdeleni podle toho, jaka hranice je po prave / leve ruce - urceni hodnot podle metody
+        if(method == LEFT_HAND)
+        {
+            
+        }
         if(start_border == BORDER_TOP_BOT)
         {
-            last_step_x = 1;
+            method? (last_step_x = -1) : (last_step_x = 1);
             last_step_y = 0;
         }
         else if(start_border == BORDER_LEFT)
         {
-            last_step_x = -1;
-            last_step_y = 0;
+            method? (last_step_x = 0) : (last_step_x = -1);
+            method? (last_step_y = -1) : (last_step_y = 0);
         }
         else if(start_border == BORDER_RIGHT)
         {
-            last_step_x = 0;
-            last_step_y = -1;   
+            method? (last_step_x  = 1) : (last_step_x = 0);
+            method? (last_step_y = 0) : (last_step_y = -1);   
         }
     }
     //otoceny
@@ -329,18 +337,18 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
     {
         if(start_border == BORDER_TOP_BOT)
         {
-            last_step_x = -1;
+            method? (last_step_x = 1) : (last_step_x = -1);
             last_step_y = 0;
         }
          else if(start_border == BORDER_LEFT)
         {
-            last_step_x = 0;
-            last_step_y = 1;
+            method? (last_step_x = -1): (last_step_x = 0);
+            method? (last_step_y = 0) : (last_step_y = 1);
         }
         else if(start_border == BORDER_RIGHT)
         {
-            last_step_x = 1;
-            last_step_y = 0;   
+            method? (last_step_x = 0) : (last_step_x = 1);
+            method? (last_step_y = 1) : (last_step_y = 0);   
         }
     }
     
@@ -350,17 +358,21 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
         //otoceny trojuhelnik
         if ((current_col % 2) == (current_row % 2))
         {
+            //nesledujici krok podle natoceni z predchoziho kroku
+            //podle metody - prava ruka - prioritne doprava, leva ruka - prioritne doleva
+            //posledni moznost u obou stejna - vraceni se zpet 
             if (last_step_x == 1)
             {
+                if(method)
                 if (!isborder(map, current_row, current_col, BORDER_RIGHT))
                 {
-                    next_step_y = 0;
-                    next_step_x = 1;
+                    method? (next_step_y = -1) : (next_step_y = 0);
+                    method? (next_step_x = 0) : (next_step_x = 1);
                 }
                 else if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
                 {
-                    next_step_y = -1;
-                    next_step_x = 0;
+                    method? (next_step_y = 0) : (next_step_y = -1);
+                    method? (next_step_x = 1) : (next_step_x = 0);
                 }
                 else
                 {
@@ -372,13 +384,13 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
             {
                 if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
                 {
-                    next_step_y = -1;
-                    next_step_x = 0;
+                    method? (next_step_y = 0) : (next_step_y = -1);
+                    method? (next_step_x = -1) : (next_step_x = 0);
                 }
                 else if (!isborder(map, current_row, current_col, BORDER_LEFT))
                 {
-                    next_step_y = 0;
-                    next_step_x = -1;
+                    method? (next_step_y = -1) : (next_step_y = 0);
+                    method? (next_step_x = 0) : (next_step_x = -1);
                 }
                 else
                 {
@@ -391,12 +403,12 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
                 if (!isborder(map, current_row, current_col, BORDER_LEFT))
                 {
                     next_step_y = 0;
-                    next_step_x = -1;
+                    method? (next_step_x = 1) : (next_step_x = -1);
                 }
                 else if (!isborder(map, current_row, current_col, BORDER_RIGHT))
                 {
                     next_step_y = 0;
-                    next_step_x = 1;
+                    method? (next_step_x = -1) : (next_step_x = 1);
                 }
                 else
                 {
@@ -412,13 +424,13 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
                 {
                     if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
                     {
-                        next_step_y = 1;
-                        next_step_x = 0;
+                        method? (next_step_y = 0) : (next_step_y = 1);
+                        method? (next_step_x = 1) : (next_step_x = 0);
                     }
                     else if (!isborder(map, current_row, current_col, BORDER_RIGHT))
                     {
-                        next_step_y = 0;
-                        next_step_x = 1;
+                        method? (next_step_y = 1) : (next_step_y = 0);
+                        method? (next_step_x = 0) : (next_step_x = 1);
                     }
                     else
                     {
@@ -430,13 +442,13 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
                 {
                     if (!isborder(map, current_row, current_col, BORDER_LEFT))
                     {
-                        next_step_y = 0;
-                        next_step_x = -1;
+                        method? (next_step_y = 1) : (next_step_y = 0);
+                        method? (next_step_x = 0) : (next_step_x = -1);
                     }
                     else if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
                     {
-                        next_step_y = 1;
-                        next_step_x = 0;
+                        method? (next_step_y = 0) : (next_step_y = 1);
+                        method? (next_step_x = -1) : (next_step_x = 0);
                     }
                     else
                     {
@@ -449,12 +461,12 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
                     if (!isborder(map, current_row, current_col, BORDER_RIGHT))
                     {
                         next_step_y = 0;
-                        next_step_x = 1;
+                        method? (next_step_x = -1) : (next_step_x = 1);
                     }
                     else if (!isborder(map, current_row, current_col, BORDER_LEFT))
                     {
                         next_step_y = 0;
-                        next_step_x = -1;
+                        method? (next_step_x = 1) : (next_step_x = -1);
                     }
                     else
                     {
@@ -471,182 +483,6 @@ void r_pathfinding(Map *map, int r, int c, int start_border)
         current_row += next_step_y;
     }
 }
-
-void l_pathfinding(Map *map, int r, int c, int start_border)
-{
-    //odecteni 1 - index od 0
-    int current_row = r-1;
-    int current_col = c-1;
-    int last_step_x = 0;
-    int last_step_y = 0;
-    //normalni trojuhelnik
-    if(current_col % 2 != current_row % 2)
-    {
-        if(start_border == BORDER_TOP_BOT)
-        {
-            last_step_x = -1;
-            last_step_y = 0;
-        }
-        else if(start_border == BORDER_LEFT)
-        {
-            last_step_x = 0;
-            last_step_y = -1;
-        }
-        else if(start_border == BORDER_RIGHT)
-        {
-            last_step_x = 1;
-            last_step_y = 0;   
-        }
-    }
-    //otoceny
-    else
-    {
-        if(start_border == BORDER_TOP_BOT)
-        {
-            last_step_x = 1;
-            last_step_y = 0;
-        }
-         else if(start_border == BORDER_LEFT)
-        {
-            last_step_x = -1;
-            last_step_y = 0;
-        }
-        else if(start_border == BORDER_RIGHT)
-        {
-            last_step_x = 0;
-            last_step_y = 1;   
-        }
-    }
-    
-    int next_step_x = 0, next_step_y = 0;
-    while (current_row < map->rows && current_row >= 0 && current_col < map->cols && current_col >= 0)
-    {
-        //otoceny trojuhelnik
-        if ((current_col % 2) == (current_row % 2))
-        {
-            if (last_step_x == 1)
-            {
-                if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
-                {
-                    next_step_y = -1;
-                    next_step_x = 0;
-                }
-                else if (!isborder(map, current_row, current_col, BORDER_RIGHT))
-                {
-                    next_step_y = 0;
-                    next_step_x = 1;
-                }
-                else
-                {
-                    next_step_y = 0;
-                    next_step_x = -1;
-                }
-            }
-            else if (last_step_x == -1)
-            {
-                if (!isborder(map, current_row, current_col, BORDER_LEFT))
-                {
-                    next_step_y = 0;
-                    next_step_x = -1;
-                }
-                else if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
-                {
-                    next_step_y = -1;
-                    next_step_x = 0;
-                }
-                else
-                {
-                    next_step_y = 0;
-                    next_step_x = 1;
-                }
-            }
-            else if (last_step_y == 1)
-            {
-                if (!isborder(map, current_row, current_col, BORDER_RIGHT))
-                {
-                    next_step_y = 0;
-                    next_step_x = 1;
-                }
-                else if (!isborder(map, current_row, current_col, BORDER_LEFT))
-                {
-                    next_step_y = 0;
-                    next_step_x = -1;
-                }
-                else
-                {
-                    next_step_y = -1;
-                    next_step_x = 0;
-                }
-            }
-        }
-        //normalni trojuhelnik
-        else
-        {
-                if (last_step_x == 1)
-                {
-                    if (!isborder(map, current_row, current_col, BORDER_RIGHT))
-                    {
-                        next_step_y = 0;
-                        next_step_x = 1;
-                    }
-                    else if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
-                    {
-                        next_step_y = 1;
-                        next_step_x = 0;
-                    }
-                    else
-                    {
-                        next_step_y = 0;    
-                        next_step_x = -1;
-                    }
-                }
-                else if (last_step_x == -1)
-                {
-                    if (!isborder(map, current_row, current_col, BORDER_TOP_BOT))
-                    {
-                        next_step_y = 1;
-                        next_step_x = 0;
-                    }
-                    else if (!isborder(map, current_row, current_col, BORDER_LEFT))
-                    {
-                        next_step_y = 0;
-                        next_step_x = -1;
-                    }
-                    else
-                    {
-                        next_step_y = 0;
-                        next_step_x = 1;
-                    }
-                }
-                else if (last_step_y == -1)
-                {
-                    if (!isborder(map, current_row, current_col, BORDER_LEFT))
-                    {
-                        next_step_y = 0;
-                        next_step_x = -1;
-                    }
-                    else if (!isborder(map, current_row, current_col, BORDER_RIGHT))
-                    {
-                        next_step_y = 0;
-                        next_step_x = 1;
-                    }
-                    else
-                    {
-                        next_step_y = 1;
-                        next_step_x = 0;
-                    }
-                }
-            
-        }
-        printf("%d,%d \n", current_row + 1, current_col + 1);
-        last_step_x = next_step_x;
-        last_step_y = next_step_y;
-        current_col += next_step_x;
-        current_row += next_step_y;
-    }
-}
-
-
 //overeni validity mapy, vraci logickou hodnotu
 bool isvalid_map(Map *map)
 {
@@ -812,6 +648,7 @@ int main(int argc, char **argv)
                     fprintf(stderr, "Nespravna pocatecni hranice");
                     return ARGS_ERROR;
                 }
+
                 pathfinding(&maze_map,r,c, border_st,RIGHT_HAND);
 
             }
