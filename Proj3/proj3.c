@@ -452,11 +452,7 @@ int main(int argc, char **argv)
                     fprintf(stderr, "Nespravna pocatecni hranice");
                     return ARGS_ERROR;
                 }
-<<<<<<< HEAD
-                find_path(&maze_map,r,c,border_st,LEFT_HAND);
-=======
                 pathfinding(&maze_map,r,c, border_st,LEFT_HAND);
->>>>>>> development
             }
             else
             {
@@ -466,20 +462,7 @@ int main(int argc, char **argv)
                     fprintf(stderr, "Nespravna pocatecni hranice");
                     return ARGS_ERROR;
                 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-                find_path(&maze_map,r,c,border_st,RIGHT_HAND);
-=======
-                r_pathfinding2(&maze_map,r,c, border_st);
->>>>>>> development
-=======
-=======
-
->>>>>>> development
                 pathfinding(&maze_map,r,c, border_st,RIGHT_HAND);
->>>>>>> development
-
             }
         }
         //uvolneni pameti po mapě
