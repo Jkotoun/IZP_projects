@@ -72,11 +72,11 @@ bool isborder(Map *map, int r, int c, int border)
 //nacitani mapy ze souboru do datove struktury map
 int map_load(Map *map, FILE *f)
 {
-    char cell_info;
+    unsigned char cell_info;
     int row_pos = 0;
     int col_pos = 0;
     int success;
-    while ((success = (fscanf(f, "%c", &cell_info))) != EOF)
+    while ((success = (fscanf(f, "%cu", &cell_info))) != EOF)
     {
         if (success == 0)
         {
@@ -105,93 +105,93 @@ int map_load(Map *map, FILE *f)
 int start_border(Map *map, int r, int c, int leftright)
 {
     //odecteni 1 - indexy od 0
-    c = c-1;
-    r = r-1; 
-        if(c == 0 || c == map->cols -1 || r == 0 || r == map->rows-1)
+    c = c - 1;
+    r = r - 1;
+    if (c == 0 || c == map->cols - 1 || r == 0 || r == map->rows - 1)
+    {
+        //prvni radek
+        if (r == 0)
         {
-            //prvni radek
-            if (r==0)
+            if (c == 0 && !isborder(map, r, c, BORDER_LEFT))
             {
-                if(c==0 && !isborder(map,r,c,BORDER_LEFT))
-                {
-                    return leftright ? BORDER_TOP_BOT:BORDER_RIGHT;
-                }
-                else if(c == map->cols-1 && !isborder(map,r,c,BORDER_RIGHT))
-                {
-                    return leftright ? BORDER_LEFT:BORDER_TOP_BOT;
-                }
-                else
-                {
-                    return leftright? BORDER_RIGHT: BORDER_LEFT;
-                }   
+                return leftright ? BORDER_TOP_BOT : BORDER_RIGHT;
             }
-            //posledni radek
-            else if (r == map->rows-1)
+            else if (c == map->cols - 1 && !isborder(map, r, c, BORDER_RIGHT))
             {
-                if(c == 0 && !isborder(map,r,c,BORDER_LEFT))
-                {
-                    if(r%2==0)
-                        return leftright? BORDER_TOP_BOT:BORDER_RIGHT;
-                    else
-                        return leftright? BORDER_RIGHT:BORDER_TOP_BOT;
-                }
-                else if(c == map->cols-1 && !isborder(map,r,c,BORDER_RIGHT))
-                {
-                    if(r%2==0)
-                        return leftright? BORDER_LEFT:BORDER_TOP_BOT;
-                    else
-                        return leftright? BORDER_TOP_BOT:BORDER_LEFT;
-                }
-                else
-                {
-                    return leftright? BORDER_LEFT:BORDER_RIGHT;
-                }
+                return leftright ? BORDER_LEFT : BORDER_TOP_BOT;
             }
-            //ostatni sude
-            else if(r%2==0)
-            {
-                if(c==0)
-                {
-                    return leftright? BORDER_TOP_BOT:BORDER_RIGHT;
-                }
-                    
-                else if(c == map->cols-1)
-                {
-                    return leftright? BORDER_LEFT:BORDER_TOP_BOT;
-                }
-            }
-            //ostatni liche
             else
             {
-                if(c==0)
-                {
-                    return leftright? BORDER_RIGHT:BORDER_TOP_BOT;
-                }
-                else if(c == map->cols -1)
-                {
-                    return leftright? BORDER_TOP_BOT:BORDER_LEFT;
-                }      
+                return leftright ? BORDER_RIGHT : BORDER_LEFT;
             }
         }
-        return -1;
+        //posledni radek
+        else if (r == map->rows - 1)
+        {
+            if (c == 0 && !isborder(map, r, c, BORDER_LEFT))
+            {
+                if (r % 2 == 0)
+                    return leftright ? BORDER_TOP_BOT : BORDER_RIGHT;
+                else
+                    return leftright ? BORDER_RIGHT : BORDER_TOP_BOT;
+            }
+            else if (c == map->cols - 1 && !isborder(map, r, c, BORDER_RIGHT))
+            {
+                if (r % 2 == 0)
+                    return leftright ? BORDER_LEFT : BORDER_TOP_BOT;
+                else
+                    return leftright ? BORDER_TOP_BOT : BORDER_LEFT;
+            }
+            else
+            {
+                return leftright ? BORDER_LEFT : BORDER_RIGHT;
+            }
+        }
+        //ostatni sude
+        else if (r % 2 == 0)
+        {
+            if (c == 0)
+            {
+                return leftright ? BORDER_TOP_BOT : BORDER_RIGHT;
+            }
+
+            else if (c == map->cols - 1)
+            {
+                return leftright ? BORDER_LEFT : BORDER_TOP_BOT;
+            }
+        }
+        //ostatni liche
+        else
+        {
+            if (c == 0)
+            {
+                return leftright ? BORDER_RIGHT : BORDER_TOP_BOT;
+            }
+            else if (c == map->cols - 1)
+            {
+                return leftright ? BORDER_TOP_BOT : BORDER_LEFT;
+            }
+        }
+    }
+    return -1;
 }
 //funkce pro najiti cesty ven podle zadanych policek na kraji, metody hledani a prvni referencni hranice
 void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
 {
     //normalni
-    Triangle tr1_directions[]= 
-    { 
-        {0,1}, //dolu
-        {1,0}, //doprava
-        {-1, 0} //doleva
-    };
+    Triangle tr1_directions[] =
+        {
+            {0, 1}, //dolu
+            {1, 0}, //doprava
+            {-1, 0} //doleva
+        };
     //otoceny
-    Triangle tr2_directions[]= 
-    { 
-        {1,0}, //doprava
-        {0,-1}, //nahoru
-        {-1, 0} //doleva
-    };
+    Triangle tr2_directions[] =
+        {
+            {1, 0},  //doprava
+            {0, -1}, //nahoru
+            {-1, 0}  //doleva
+        };
     //normalni - serazene smery podle pole smeru
     int tr1_borders[] = {BORDER_TOP_BOT, BORDER_RIGHT, BORDER_LEFT};
     //otoceny
@@ -200,100 +200,96 @@ void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
     int current_col = c - 1;
     int last_move;
     //normalni
-    if(current_row % 2 != current_col %2)
+    if (current_row % 2 != current_col % 2)
     {
-        int i=0;
-        if(finding_method == LEFT_HAND)
+        int i = 0;
+        if (finding_method == LEFT_HAND)
         {
-            while(tr1_borders[(i+1)%3] != start_border)
+            while (tr1_borders[(i + 1) % 3] != start_border)
                 i++;
         }
         else
         {
-            while(tr1_borders[i] != start_border)
+            while (tr1_borders[i] != start_border)
                 i++;
         }
         last_move = i;
     }
     else
     {
-        int i=0;
-        if(finding_method == LEFT_HAND)
+        int i = 0;
+        if (finding_method == LEFT_HAND)
         {
-            while(tr2_borders[i] != start_border)
+            while (tr2_borders[i] != start_border)
                 i++;
         }
         else
         {
-           while(tr2_borders[(i+2)%3] != start_border)
+            while (tr2_borders[(i + 2) % 3] != start_border)
                 i++;
         }
         last_move = i;
-
     }
     int next_move;
     int next_x, next_y;
     while (current_row < map->rows && current_row >= 0 && current_col < map->cols && current_col >= 0)
     {
-    //normalni
-    if(current_row % 2 != current_col %2)
-    {
-        //index prioritiniho kroku v normalnim trojuhelniku odpovida indexu predchoziho kroku v otocenem trojuhelniku
-        if(finding_method == LEFT_HAND)
+        //normalni
+        if (current_row % 2 != current_col % 2)
         {
-            next_move = (last_move + 1)%3;
-        }
-        else
-        {
-            next_move = last_move;    
-        }
-        while(isborder(map,current_row,current_col,tr1_borders[next_move]))//hranice kam chci jit
-        {
-            if(finding_method == LEFT_HAND)
+            //index prioritiniho kroku v normalnim trojuhelniku odpovida indexu predchoziho kroku v otocenem trojuhelniku
+            if (finding_method == LEFT_HAND)
             {
-                next_move = (next_move -1 +3)%3;
+                next_move = (last_move + 1) % 3;
             }
             else
             {
-                next_move = (next_move + 1) % 3; 
+                next_move = last_move;
             }
-            
-        }
-        next_x = tr1_directions[next_move].x;
-        next_y = tr1_directions[next_move].y;
-    }
-    else
-    {
-        //index prioritiniho kroku v otocenem trojuhelniku odpovida indexu zvetsenemu o 2 predchoziho kroku v normalnim trojuhelniku
-        if(finding_method == LEFT_HAND)
-        {
-            next_move = last_move;
+            while (isborder(map, current_row, current_col, tr1_borders[next_move])) //hranice kam chci jit
+            {
+                if (finding_method == LEFT_HAND)
+                {
+                    next_move = (next_move - 1 + 3) % 3;
+                }
+                else
+                {
+                    next_move = (next_move + 1) % 3;
+                }
+            }
+            next_x = tr1_directions[next_move].x;
+            next_y = tr1_directions[next_move].y;
         }
         else
         {
-            next_move = (last_move + 2)%3;
-        }
-        while(isborder(map,current_row,current_col,tr2_borders[next_move]))//hranice kam chci jit
-        {
-            if(finding_method == LEFT_HAND)
+            //index prioritiniho kroku v otocenem trojuhelniku odpovida indexu zvetsenemu o 2 predchoziho kroku v normalnim trojuhelniku
+            if (finding_method == LEFT_HAND)
             {
-                next_move = (next_move -1 +3)%3;
+                next_move = last_move;
             }
             else
             {
-                next_move = (next_move + 1) % 3; 
+                next_move = (last_move + 2) % 3;
             }
-            
+            while (isborder(map, current_row, current_col, tr2_borders[next_move])) //hranice kam chci jit
+            {
+                if (finding_method == LEFT_HAND)
+                {
+                    next_move = (next_move - 1 + 3) % 3;
+                }
+                else
+                {
+                    next_move = (next_move + 1) % 3;
+                }
+            }
+            next_x = tr2_directions[next_move].x;
+            next_y = tr2_directions[next_move].y;
         }
-        next_x = tr2_directions[next_move].x;
-        next_y = tr2_directions[next_move].y;
+        printf("%d,%d\n", current_row + 1, current_col + 1);
+        current_row += next_y;
+        current_col += next_x;
+        last_move = next_move;
     }
-    printf("%d,%d\n", current_row + 1, current_col +1);
-    current_row += next_y;
-    current_col += next_x;
-    last_move = next_move;
-    }
-    
 }
 
 //overeni validity mapy, vraci logickou hodnotu
@@ -404,7 +400,7 @@ int main(int argc, char **argv)
         int loaded_nums = fscanf(maze_file, "%d %d [\r][\n]", &maze_rows, &maze_cols);
         if (loaded_nums == 0)
         {
-            fprintf(stderr, "Chyba cteni ze souboru");
+            fprintf(stderr, "Chyba cteni ze souboru\n");
             return FILE_ERROR;
         }
         //alokovani pameti pro mapu a inicializace na pocatecni hodnoty
@@ -414,7 +410,7 @@ int main(int argc, char **argv)
         int load_result = map_load(&maze_map, maze_file);
         if (load_result == MAP_LOADING_ERROR)
         {
-            fprintf(stderr, "Nepodarilo se nacist mapu");
+            fprintf(stderr, "Invalid\n");
             fclose(maze_file);
             return MAP_LOADING_ERROR;
         }
@@ -422,12 +418,10 @@ int main(int argc, char **argv)
         {
             fclose(maze_file);
         }
-        
         //test validity souboru
         if (test_only)
         {
-            bool valid = isvalid_map(&maze_map);
-            if (valid)
+            if (isvalid_map(&maze_map))
             {
                 printf("Valid\n");
             }
@@ -440,28 +434,41 @@ int main(int argc, char **argv)
         //vyhledani cesty v bludisti
         else
         {
-            int r = atoi(argv[2]);
-            int c = atoi(argv[3]);
-            
-            if (strcmp(argv[1], "--lpath") == 0)
+            if (isvalid_map(&maze_map))
             {
-                int border_st = start_border(&maze_map,r,c,LEFT_HAND);
-                if(border_st == -1)
+
+                int r = atoi(argv[2]);
+                int c = atoi(argv[3]);
+                if (r > maze_map.rows || c > maze_map.cols)
                 {
-                    fprintf(stderr, "Nespravna pocatecni hranice");
+                    fprintf(stderr, "Zadane hodnoty jsou mimo rozsah mapy bludiste\n");
                     return ARGS_ERROR;
                 }
-                pathfinding(&maze_map,r,c, border_st,LEFT_HAND);
+                if (strcmp(argv[1], "--lpath") == 0)
+                {
+                    int border_st = start_border(&maze_map, r, c, LEFT_HAND);
+                    if (border_st == -1)
+                    {
+                        fprintf(stderr, "Nespravna pocatecni hranice\n");
+                        return ARGS_ERROR;
+                    }
+                    pathfinding(&maze_map, r, c, border_st, LEFT_HAND);
+                }
+                else
+                {
+                    int border_st = start_border(&maze_map, r, c, RIGHT_HAND);
+                    if (border_st == -1)
+                    {
+                        fprintf(stderr, "Nespravna pocatecni hranice");
+                        return ARGS_ERROR;
+                    }
+                    pathfinding(&maze_map, r, c, border_st, RIGHT_HAND);
+                }
             }
             else
             {
-                int border_st = start_border(&maze_map,r,c,RIGHT_HAND);
-                if(border_st == -1)
-                {
-                    fprintf(stderr, "Nespravna pocatecni hranice");
-                    return ARGS_ERROR;
-                }
-                pathfinding(&maze_map,r,c, border_st,RIGHT_HAND);
+                fprintf(stderr, "Invalid");
+                return MAP_LOADING_ERROR;
             }
         }
         //uvolneni pameti po mapě
