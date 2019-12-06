@@ -19,13 +19,13 @@ enum BORDERS
     BORDER_RIGHT,
     BORDER_TOP_BOT = 4
 };
-
+//metody vyhledavani
 enum PATHFINDING_METHOD
 {
     RIGHT_HAND,
     LEFT_HAND
 };
-
+//struktura pro ulozeni moznych pohybu v bludisti
 typedef struct triangle_move
 {
     int x;
@@ -62,11 +62,11 @@ void map_init(Map *map)
         map->cells[i] = 0;
     }
 }
-//je na dane hranici stena? - rozhoduje podle jednotlivych bitu cisel ze souboru, jako hodnoty border predpoklada binarni hodnoty dane hranice (1|2|4)
+//je na dane hranici stena? - rozhoduje podle jednotlivych bitu cisel ze souboru
 bool isborder(Map *map, int r, int c, int border)
 {
     char cell = map->cells[r * map->cols + c];
-    int cell_val = cell - '0';
+    int cell_val = cell - '0'; //cislice z ordinalni hodnoty znaku
     return (border & cell_val) == border;
 }
 //nacitani mapy ze souboru do datove struktury map
@@ -84,12 +84,10 @@ int map_load(Map *map, FILE *f)
         }
         if (cell_info != ' ' && cell_info != '\n' && cell_info != '\r')
         {
-            if (row_pos >= map->rows || col_pos >= map->cols)
+            if (row_pos >= map->rows || col_pos >= map->cols || !isdigit(cell_info))
             {
                 return MAP_LOADING_ERROR;
             }
-            if (!isdigit(cell_info))
-                return MAP_LOADING_ERROR;
             map->cells[map->cols * row_pos + col_pos] = cell_info;
             col_pos++;
             if (col_pos > map->cols - 1)
@@ -112,10 +110,12 @@ int start_border(Map *map, int r, int c, int leftright)
         //prvni radek
         if (r == 0)
         {
+            //prvni sloupec
             if (c == 0 && !isborder(map, r, c, BORDER_LEFT))
             {
                 return leftright ? BORDER_TOP_BOT : BORDER_RIGHT;
             }
+            //posledni sloupec
             else if (c == map->cols - 1 && !isborder(map, r, c, BORDER_RIGHT))
             {
                 return leftright ? BORDER_LEFT : BORDER_TOP_BOT;
@@ -128,6 +128,7 @@ int start_border(Map *map, int r, int c, int leftright)
         //posledni radek
         else if (r == map->rows - 1)
         {
+            //prvni sloupec
             if (c == 0 && !isborder(map, r, c, BORDER_LEFT))
             {
                 if (r % 2 == 0)
@@ -135,6 +136,7 @@ int start_border(Map *map, int r, int c, int leftright)
                 else
                     return leftright ? BORDER_RIGHT : BORDER_TOP_BOT;
             }
+            //posledni sloupec
             else if (c == map->cols - 1 && !isborder(map, r, c, BORDER_RIGHT))
             {
                 if (r % 2 == 0)
@@ -178,14 +180,14 @@ int start_border(Map *map, int r, int c, int leftright)
 //funkce pro najiti cesty ven podle zadanych policek na kraji, metody hledani a prvni referencni hranice
 void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
 {
-    //normalni
+    //normalni trojuhelnik
     Triangle tr1_directions[] =
         {
             {0, 1}, //dolu
             {1, 0}, //doprava
             {-1, 0} //doleva
         };
-    //otoceny
+    //otoceny trojuhelnik
     Triangle tr2_directions[] =
         {
             {1, 0},  //doprava
@@ -199,6 +201,9 @@ void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
     int current_row = r - 1;
     int current_col = c - 1;
     int last_move;
+    //najiti predchoziho smeru pro prvni krok podle odpovidajici startovni hranice
+    //hodnoty indexu podle vztahu indexu predchoziho smeru a odpovidajiciho prioritniho smeru v druhem trojuhelniku
+    //hranice maji stejny index v poli enumu jako odpovidajici smery
     //normalni
     if (current_row % 2 != current_col % 2)
     {
@@ -215,6 +220,7 @@ void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
         }
         last_move = i;
     }
+    //otoceny
     else
     {
         int i = 0;
@@ -237,16 +243,17 @@ void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
         //normalni
         if (current_row % 2 != current_col % 2)
         {
-            //index prioritiniho kroku v normalnim trojuhelniku odpovida indexu predchoziho kroku v otocenem trojuhelniku
+             //index prioritiniho kroku v normalnim trojuhelniku =  index predchoziho kroku + 1
             if (finding_method == LEFT_HAND)
             {
                 next_move = (last_move + 1) % 3;
             }
+            //index prioritiniho kroku v normalnim trojuhelniku = index predchoziho kroku
             else
             {
                 next_move = last_move;
             }
-            while (isborder(map, current_row, current_col, tr1_borders[next_move])) //hranice kam chci jit
+            while (isborder(map, current_row, current_col, tr1_borders[next_move])) //zmena smeru pokud je na danem smeru stena - L_hand = -1, R_hand = +1
             {
                 if (finding_method == LEFT_HAND)
                 {
@@ -260,18 +267,20 @@ void pathfinding(Map *map, int r, int c, int start_border, int finding_method)
             next_x = tr1_directions[next_move].x;
             next_y = tr1_directions[next_move].y;
         }
+        //otoceny
         else
         {
-            //index prioritiniho kroku v otocenem trojuhelniku odpovida indexu zvetsenemu o 2 predchoziho kroku v normalnim trojuhelniku
+            //index prioritiniho kroku v otocenem trojuhelniku = index predchoziho kroku
             if (finding_method == LEFT_HAND)
             {
                 next_move = last_move;
             }
+            //index prioritiniho kroku v otocenem trojuhelniku = index predchoziho kroku + 2
             else
             {
                 next_move = (last_move + 2) % 3;
             }
-            while (isborder(map, current_row, current_col, tr2_borders[next_move])) //hranice kam chci jit
+            while (isborder(map, current_row, current_col, tr2_borders[next_move])) //zmena smeru pokud je na danem smeru stena - L_hand = -1, R_hand = +1
             {
                 if (finding_method == LEFT_HAND)
                 {
@@ -299,8 +308,8 @@ bool isvalid_map(Map *map)
     {
         for (int j = 0; j < map->cols; j++)
         {
-            //je popis pro dane policko
-            if (map->cells[i * map->cols + j] == 0 || (map->cells[i * map->cols + j] < '0' || map->cells[i * map->cols + j] > '9'))
+            //nevalidni popis - jina hodnota nez 0 - 7, pripadne neni popis vubec - ordinalni hodnota 0 z inicializace mapy
+            if (map->cells[i * map->cols + j] == 0 || (map->cells[i * map->cols + j] < '0' || map->cells[i * map->cols + j] > '7'))
                 return false;
             //prava strana ma shodnou hranici s vedlejsim trojuhelnikem
             if (j + 1 != map->cols)
@@ -316,7 +325,6 @@ bool isvalid_map(Map *map)
                 if (isborder(map, i, j, BORDER_LEFT) != isborder(map, i, j - 1, BORDER_RIGHT))
                     return false;
             }
-            //shoda spodni / horni hranice, sude a liche podle indexu od 0
             //horni hranice - sudy sloupec a sudy radek nebo lichy sloupec a lichy radek
             if (i % 2 == j % 2)
             {
@@ -339,7 +347,7 @@ bool isvalid_map(Map *map)
     }
     return true;
 }
-//Funkce vracejici logickou hodnotu podle toho, jestli je retezec cislo
+//je retezec z cislic
 bool str_is_num(char *str)
 {
     for (int i = 0; str[i] != '\0'; i++)
@@ -349,10 +357,9 @@ bool str_is_num(char *str)
     }
     return true;
 }
-//vypise napovedu
 void print_help()
 {
-    printf("--test soubor \n");
+    printf("--test soubor.txt \n");
     printf("    otestuje zadany soubor, jestli obsahuje validni definici mapy \n");
     printf("--rpath  R C soubor.txt \n");
     printf("    Najde cestu z bludiste zadaneho v souboru 'soubor.txt' z radku R a sloupce C pomoci metody prave ruky\n");
@@ -361,7 +368,7 @@ void print_help()
 }
 int main(int argc, char **argv)
 {
-    //pokud je argument napoveda
+    //argument je napoveda
     if (argc == 2 && strcmp(argv[1], "--help") == 0)
     {
         print_help();
@@ -369,10 +376,9 @@ int main(int argc, char **argv)
     }
     else if (argc > 2)
     {
-
         bool test_only = false;
         char *file_name;
-        //program je  spusten pouze jako test validity bludiste v souboru
+        //program je spusten jako test validity bludiste ze souboru
         if (strcmp(argv[1], "--test") == 0)
         {
             test_only = true;
@@ -406,7 +412,6 @@ int main(int argc, char **argv)
         //alokovani pameti pro mapu a inicializace na pocatecni hodnoty
         Map maze_map = map_ctor(maze_rows, maze_cols);
         map_init(&maze_map);
-
         int load_result = map_load(&maze_map, maze_file);
         if (load_result == MAP_LOADING_ERROR)
         {
@@ -421,14 +426,7 @@ int main(int argc, char **argv)
         //test validity souboru
         if (test_only)
         {
-            if (isvalid_map(&maze_map))
-            {
-                printf("Valid\n");
-            }
-            else
-            {
-                printf("Invalid\n");
-            }
+            isvalid_map(&maze_map) ? printf("Valid\n") : printf("Invalid\n");
             return 0;
         }
         //vyhledani cesty v bludisti
@@ -436,33 +434,32 @@ int main(int argc, char **argv)
         {
             if (isvalid_map(&maze_map))
             {
-
-                int r = atoi(argv[2]);
-                int c = atoi(argv[3]);
-                if (r > maze_map.rows || c > maze_map.cols)
+                int start_r = atoi(argv[2]);
+                int start_c = atoi(argv[3]);
+                if (start_r > maze_map.rows || start_c > maze_map.cols)
                 {
                     fprintf(stderr, "Zadane hodnoty jsou mimo rozsah mapy bludiste\n");
                     return ARGS_ERROR;
                 }
                 if (strcmp(argv[1], "--lpath") == 0)
                 {
-                    int border_st = start_border(&maze_map, r, c, LEFT_HAND);
+                    int border_st = start_border(&maze_map, start_r, start_c, LEFT_HAND);
                     if (border_st == -1)
                     {
                         fprintf(stderr, "Nespravna pocatecni hranice\n");
                         return ARGS_ERROR;
                     }
-                    pathfinding(&maze_map, r, c, border_st, LEFT_HAND);
+                    pathfinding(&maze_map, start_r, start_c, border_st, LEFT_HAND);
                 }
                 else
                 {
-                    int border_st = start_border(&maze_map, r, c, RIGHT_HAND);
+                    int border_st = start_border(&maze_map, start_r, start_c, RIGHT_HAND);
                     if (border_st == -1)
                     {
                         fprintf(stderr, "Nespravna pocatecni hranice");
                         return ARGS_ERROR;
                     }
-                    pathfinding(&maze_map, r, c, border_st, RIGHT_HAND);
+                    pathfinding(&maze_map, start_r, start_c, border_st, RIGHT_HAND);
                 }
             }
             else
